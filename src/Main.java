@@ -1,12 +1,8 @@
-import java.io.File;
+import java.io.*;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args){
-
-        /* System.out.println("Введите текст и нажмите <Enter>:");
-        String text = new Scanner(System.in).nextLine();
-        System.out.println("Длина текста: " + text.length());*/
 
         int countFiles = 0;
         while (1==1){
@@ -22,6 +18,30 @@ public class Main {
             if (!fileExists) {System.out.println("Файла не существует: " + file); continue;}
 
             countFiles ++; System.out.println("Путь указан верно. Это файл номер " + countFiles);
+
+           try {
+                FileReader fileReader = new FileReader(path);
+                BufferedReader reader = new BufferedReader(fileReader);
+                String line;
+                int countOfRows = 0;
+                int maxLengthStr = 0;
+                int minLengthStr = 0;
+                while ((line = reader.readLine()) != null) {
+                    countOfRows++;
+                    int length = line.length();
+                    if (length > 1024) {throw new StringRunTimeException("Длина строки больше 1024");}
+                    if (countOfRows == 1){minLengthStr = length;}
+                    if (maxLengthStr < length) {maxLengthStr = length;}
+                    if (minLengthStr > length) {minLengthStr = length;}
+                }
+                System.out.println("Всего строк: " + countOfRows);
+                System.out.println("Максимальная длина строки - " + maxLengthStr);
+                System.out.println("Минимальная длина строки - " + minLengthStr);
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex1) {
+               ex1.printStackTrace();
+           }
         }
     }
 }

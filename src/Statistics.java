@@ -8,11 +8,17 @@ public class Statistics {
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
     private HashSet<String> allExistsPages;
+    private HashSet<String> allNotExistsPages;
     private HashMap<PlatformEnum, Integer> amountOfDifferentOS;
+
+    private HashMap<BrowserEnum, Integer> amountOfDifferentBrowsers;
     public Statistics(){
         totalTraffic = 0;
         allExistsPages = new HashSet<>();
+        allNotExistsPages = new HashSet<>();
         amountOfDifferentOS = new HashMap<>();
+        amountOfDifferentBrowsers = new HashMap<>();
+
         // зададим заведомо малое и заведомо большое значения
         maxTime = LocalDateTime.of(1900,01,01,00,00,00);
         minTime = LocalDateTime.of(4000,01,01,00,00,00);
@@ -20,6 +26,7 @@ public class Statistics {
 
     public void addEntry(LogEntry logEntry){
         PlatformEnum plat;
+        BrowserEnum browser;
         // System.out.println(logEntry.getRespSize());
         totalTraffic+=logEntry.getRespSize();
         if (logEntry.getDateOfReq().compareTo(minTime)<0)
@@ -30,12 +37,22 @@ public class Statistics {
         // добавим страницу, если она существует код 200;
         if (logEntry.getRespCode() == 200){allExistsPages.add(logEntry.getMethod());}
 
+        // добавим страницу, если она не существует код 404;
+        if (logEntry.getRespCode() == 404){allNotExistsPages.add(logEntry.getMethod());}
+
         // подсчитаем кол-во различных ОС
         plat = PlatformEnum.valueOf(logEntry.getUserAgent().getPlatform());
         if (amountOfDifferentOS.containsKey(plat)){
             amountOfDifferentOS.put(plat, amountOfDifferentOS.get(plat) + 1);
         }
         else amountOfDifferentOS.put(plat, 1);
+
+        // подсчитаем кол-во различных браузеров
+        browser = BrowserEnum.valueOf(logEntry.getUserAgent().getBrowser());
+        if (amountOfDifferentBrowsers.containsKey(browser)){
+            amountOfDifferentBrowsers.put(browser, amountOfDifferentBrowsers.get(browser) + 1);
+        }
+        else amountOfDifferentBrowsers.put(browser, 1);
 
     }
 
@@ -48,9 +65,18 @@ public class Statistics {
 
     }
 
+    public HashSet<String> getAllNotExistsPages(){
+        return new HashSet<>(this.allNotExistsPages);
+    }
+
     public HashMap<PlatformEnum, Integer> getMapOfDifferentOS(){
         return new HashMap<>(amountOfDifferentOS);
     }
+
+    public HashMap<BrowserEnum, Integer> getMapOfDifferentBrowsers(){
+        return new HashMap<>(amountOfDifferentBrowsers);
+    }
+
 
     public double getTrafficRate(){return totalTraffic/Duration.between(minTime,maxTime).toHours();}
 
@@ -68,5 +94,21 @@ public class Statistics {
             }
         }
         return RatioOS;
+    }
+
+    public HashMap<BrowserEnum, Double> getRatioOfBrowsers(){
+        int allBrowsers= 0;
+        HashMap<BrowserEnum, Double> RatioOfBrowsers = new HashMap<>();
+        // Подсчитаем общее кол-во OS и в новую коллекцию сразу заполним ключи
+        if (!amountOfDifferentBrowsers.isEmpty()) {
+            for(BrowserEnum key : amountOfDifferentBrowsers.keySet()) {
+                allBrowsers+= amountOfDifferentBrowsers.get(key);
+                RatioOfBrowsers.put(key,(double)amountOfDifferentBrowsers.get(key));
+            }
+            for(BrowserEnum key : RatioOfBrowsers.keySet()) {
+                RatioOfBrowsers.put(key,RatioOfBrowsers.get(key)/allBrowsers);
+            }
+        }
+        return RatioOfBrowsers;
     }
 }

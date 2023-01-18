@@ -47,8 +47,12 @@ public class Main {
                 System.out.println("Объем трафика за все время: " + statistics.getTraffic());
                 System.out.println("Объем часового трафика: " + statistics.getTrafficRate());
                 //System.out.println("Существующие станицы: " + statistics.getAllExistsPages());
+                //System.out.println("НЕСуществующие станицы: " + statistics.getAllNotExistsPages());
                 System.out.println("Пары ОС/кол-во: " + statistics.getMapOfDifferentOS());
                 System.out.println("Доля ОС: " + statistics.getRatioOfOS());
+
+                //System.out.println("Пары браузеры/кол-во: " + statistics.getMapOfDifferentBrowsers());
+                System.out.println("Доля браузеров: " + statistics.getRatioOfBrowsers());
 
             } catch (FileNotFoundException ex) {
                ex.printStackTrace();

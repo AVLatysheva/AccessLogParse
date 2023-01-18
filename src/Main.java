@@ -46,6 +46,9 @@ public class Main {
                 System.out.println("Максимальное время врем: " + statistics.getMaxTime());
                 System.out.println("Объем трафика за все время: " + statistics.getTraffic());
                 System.out.println("Объем часового трафика: " + statistics.getTrafficRate());
+                //System.out.println("Существующие станицы: " + statistics.getAllExistsPages());
+                System.out.println("Пары ОС/кол-во: " + statistics.getMapOfDifferentOS());
+                System.out.println("Доля ОС: " + statistics.getRatioOfOS());
 
             } catch (FileNotFoundException ex) {
                ex.printStackTrace();

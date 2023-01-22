@@ -53,6 +53,12 @@ public class Main {
 
                 //System.out.println("Пары браузеры/кол-во: " + statistics.getMapOfDifferentBrowsers());
                 System.out.println("Доля браузеров: " + statistics.getRatioOfBrowsers());
+                System.out.println("Количество посещений сайта за час: " + statistics.getAverageAmountOfVisiting());
+                System.out.println("Количество ошибочных запросов в час: " + statistics.getAverageAmountOfErrorReq());
+                //System.out.println("" + statistics.getAllUniqueIPAddresses());
+                System.out.println("Средняя посещаемость 1 пользователем: " + statistics.getAverageAmountOfUniqueVisitors());
+
+
 
             } catch (FileNotFoundException ex) {
                ex.printStackTrace();

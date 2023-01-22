@@ -2,6 +2,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.stream.IntStream;
 
 public class Statistics {
     private int totalTraffic;
@@ -10,14 +11,21 @@ public class Statistics {
     private HashSet<String> allExistsPages;
     private HashSet<String> allNotExistsPages;
     private HashMap<PlatformEnum, Integer> amountOfDifferentOS;
-
     private HashMap<BrowserEnum, Integer> amountOfDifferentBrowsers;
+    private double amountOfBots;
+    private int amountOfRows;
+    private int amountOfErrorReq;
+    private HashSet<String> allUniqueIPAddresses;
     public Statistics(){
         totalTraffic = 0;
+        amountOfBots = 0;
+        amountOfRows = 0;
+        amountOfErrorReq = 0;
         allExistsPages = new HashSet<>();
         allNotExistsPages = new HashSet<>();
         amountOfDifferentOS = new HashMap<>();
         amountOfDifferentBrowsers = new HashMap<>();
+        allUniqueIPAddresses = new HashSet<>();
 
         // зададим заведомо малое и заведомо большое значения
         maxTime = LocalDateTime.of(1900,01,01,00,00,00);
@@ -27,6 +35,7 @@ public class Statistics {
     public void addEntry(LogEntry logEntry){
         PlatformEnum plat;
         BrowserEnum browser;
+        amountOfRows +=1;
         // System.out.println(logEntry.getRespSize());
         totalTraffic+=logEntry.getRespSize();
         if (logEntry.getDateOfReq().compareTo(minTime)<0)
@@ -54,6 +63,15 @@ public class Statistics {
         }
         else amountOfDifferentBrowsers.put(browser, 1);
 
+        // подсчитываем кол-во ботов + добавляем IP адресс для подсчета уникальных реальных пользователей
+        if (!logEntry.getUserAgent().getIsBot()) {
+            amountOfBots+=1;
+            allUniqueIPAddresses.add(logEntry.getAddress());
+        }
+
+        // подсчитываем число ошибочных запросов
+        if (logEntry.getRespCode()/100 == 4 || logEntry.getRespCode()/100 == 5) {amountOfErrorReq +=1;}
+
     }
 
     public int getTraffic() {return totalTraffic;}
@@ -76,7 +94,6 @@ public class Statistics {
     public HashMap<BrowserEnum, Integer> getMapOfDifferentBrowsers(){
         return new HashMap<>(amountOfDifferentBrowsers);
     }
-
 
     public double getTrafficRate(){return totalTraffic/Duration.between(minTime,maxTime).toHours();}
 
@@ -110,5 +127,21 @@ public class Statistics {
             }
         }
         return RatioOfBrowsers;
+    }
+
+    public double getAverageAmountOfVisiting() {
+        return (amountOfRows-amountOfBots)/Duration.between(minTime,maxTime).toHours();
+    }
+
+    public double getAverageAmountOfErrorReq() {
+        return (amountOfErrorReq)/Duration.between(minTime,maxTime).toHours();
+    }
+
+    public HashSet<String> getAllUniqueIPAddresses(){
+        return new HashSet<>(this.allUniqueIPAddresses);
+    }
+
+    public double getAverageAmountOfUniqueVisitors(){
+        return (amountOfRows-amountOfBots)/ allUniqueIPAddresses.size();
     }
 }

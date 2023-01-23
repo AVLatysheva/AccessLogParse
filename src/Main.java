@@ -57,7 +57,10 @@ public class Main {
                 System.out.println("Количество ошибочных запросов в час: " + statistics.getAverageAmountOfErrorReq());
                 //System.out.println("" + statistics.getAllUniqueIPAddresses());
                 System.out.println("Средняя посещаемость 1 пользователем: " + statistics.getAverageAmountOfUniqueVisitors());
-
+                //System.out.println("" + statistics.getWorkloadInSecond());
+                System.out.println("Пиковая нагрузка в секунду " + statistics.getAmountOfReqPerSecond());
+                //System.out.println("" + statistics.getDomenNames());
+                System.out.println("Максимальное число посещений 1 пользователем " + statistics.getMaxUniqUserVisit());
 
 
             } catch (FileNotFoundException ex) {

@@ -1,5 +1,9 @@
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.IntStream;
@@ -16,6 +20,9 @@ public class Statistics {
     private int amountOfRows;
     private int amountOfErrorReq;
     private HashSet<String> allUniqueIPAddresses;
+    private HashMap<LocalDateTime, Integer> workloadInSecond;
+    private HashSet<String> domenNames;
+    private HashMap<String, Integer> uniqUserMaxVisit;
     public Statistics(){
         totalTraffic = 0;
         amountOfBots = 0;
@@ -26,13 +33,15 @@ public class Statistics {
         amountOfDifferentOS = new HashMap<>();
         amountOfDifferentBrowsers = new HashMap<>();
         allUniqueIPAddresses = new HashSet<>();
-
+        workloadInSecond = new HashMap<>();
+        domenNames = new HashSet<>();
+        uniqUserMaxVisit = new HashMap<>();
         // зададим заведомо малое и заведомо большое значения
         maxTime = LocalDateTime.of(1900,01,01,00,00,00);
         minTime = LocalDateTime.of(4000,01,01,00,00,00);
     }
 
-    public void addEntry(LogEntry logEntry){
+    public void addEntry(LogEntry logEntry) throws MalformedURLException {
         PlatformEnum plat;
         BrowserEnum browser;
         amountOfRows +=1;
@@ -64,13 +73,30 @@ public class Statistics {
         else amountOfDifferentBrowsers.put(browser, 1);
 
         // подсчитываем кол-во ботов + добавляем IP адресс для подсчета уникальных реальных пользователей
+        // добавим сюда же нагрузку для каждой секунды
         if (!logEntry.getUserAgent().getIsBot()) {
             amountOfBots+=1;
             allUniqueIPAddresses.add(logEntry.getAddress());
+            if (workloadInSecond.containsKey(logEntry.getDateOfReq())){
+                workloadInSecond.put(logEntry.getDateOfReq(), workloadInSecond.get(logEntry.getDateOfReq()) + 1);}
+            else workloadInSecond.put(logEntry.getDateOfReq(), 1);
         }
 
         // подсчитываем число ошибочных запросов
         if (logEntry.getRespCode()/100 == 4 || logEntry.getRespCode()/100 == 5) {amountOfErrorReq +=1;}
+
+        // заполним доменные имена
+        if (!logEntry.getReferer().equals("-") || logEntry.getReferer() != null ){
+            try {
+               URL exURL = new URL(logEntry.getReferer());
+                domenNames.add(exURL.getHost());
+            } catch (MalformedURLException e) {}
+        }
+        // уникальный адрес - кол-во посещений
+        if (uniqUserMaxVisit.containsKey(logEntry.getAddress())){
+            uniqUserMaxVisit.put(logEntry.getAddress(), uniqUserMaxVisit.get(logEntry.getAddress()) + 1);
+        }
+        else uniqUserMaxVisit.put(logEntry.getAddress(), 1);
 
     }
 
@@ -143,5 +169,21 @@ public class Statistics {
 
     public double getAverageAmountOfUniqueVisitors(){
         return (amountOfRows-amountOfBots)/ allUniqueIPAddresses.size();
+    }
+
+    public HashMap<LocalDateTime, Integer> getWorkloadInSecond() {
+        return new HashMap<>(workloadInSecond);
+    }
+    public int getAmountOfReqPerSecond(){
+        return Collections.max(workloadInSecond.values());
+    }
+
+    public HashSet<String> getDomenNames(){
+        return new HashSet<>(domenNames);
+    }
+
+    public int getMaxUniqUserVisit(){
+        System.out.println(uniqUserMaxVisit.toString());
+        return Collections.max(uniqUserMaxVisit.values());
     }
 }

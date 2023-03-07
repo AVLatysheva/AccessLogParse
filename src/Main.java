@@ -16,6 +16,7 @@ public class Main {
             boolean isDirectory  = file.isDirectory();
             Statistics statistics = new Statistics();
 
+
             if (isDirectory) {System.out.println("Вы указали путь, а не файл: " + path); continue;}
             if (!fileExists) {System.out.println("Файла не существует: " + file); continue;}
 
